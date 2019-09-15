@@ -4,4 +4,13 @@
 
 IIDX segment display software emulator
 
-Requires [DSEG14Classic-Italic font](https://www.keshikan.net/fonts-e.html), pygame, and SpiceAPI.
+## Dependencies
+Tested on Python 3.7.3. Requires [DSEG14Classic-Italic font](https://www.keshikan.net/fonts-e.html), pygame, and SpiceAPI.
+
+## Instructions
+
+    py ticker.py server_ip port password
+
+e.g.,
+
+    py ticker.py "192.168.1.200" 50000 "MyPass123"
