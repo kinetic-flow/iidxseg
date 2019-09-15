@@ -4,4 +4,4 @@
 
 IIDX segment display software emulator
 
-Requires [DSEG14Classic-Italic font](https://www.keshikan.net/fonts-e.html) and SpiceAPI.
+Requires [DSEG14Classic-Italic font](https://www.keshikan.net/fonts-e.html), pygame, and SpiceAPI.
