@@ -9,6 +9,8 @@ Tested on Python 3.7.3. Requires [DSEG14Classic-Italic font](https://www.keshika
 
 ## Instructions
 
+First of all, launch spicetools with API server enabled. Then, launch with:
+
     py ticker.py server_ip port password
 
 e.g.,
