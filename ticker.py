@@ -115,6 +115,7 @@ def main():
 
             if reconnect:
                 try:
+                    reconnect = False
                     con.reconnect()
                 except:
                     pass
