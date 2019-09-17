@@ -52,13 +52,8 @@ def convert_ticker_text(original_text):
     return text
 
 def get_ticker(con):
-    try:
-        text = spiceapi.iidx_ticker_get(con)
-        text = convert_ticker_text(text[0])
-        return text
-
-    except:
-        return all_on_text
+    text = spiceapi.iidx_ticker_get(con)
+    return convert_ticker_text(text[0])
 
 class Ticker:
     def __init__(self, screen):
@@ -91,8 +86,11 @@ def main():
     screen = pygame.display.set_mode((X, Y))
     pygame.display.set_caption("IIDXSEG")
     ticker = Ticker(screen)
+
     quitting = False
     con = None
+    reconnect = False
+
     while not quitting:
         # Check for pygame events
         for event in pygame.event.get():
@@ -101,21 +99,25 @@ def main():
                 pygame.quit() 
                 quit()
 
-        # Maintain a connection
-        if (con is None):
+        if con is None:
             try:
                 con = spiceapi.Connection(host=args.host, port=args.port, password=args.password)
-                retry_rest = 0
-                print("connected")
+                print("reconnecting ...")
             except:
-                print("disconnected")
                 con = None
 
-        # Obtain ticker text
-        if (con is not None):
-            ticker_text = get_ticker(con)
-        else:
-            ticker_text = all_on_text
+        ticker_text = all_on_text
+        if con is not None:
+            try:
+                ticker_text = get_ticker(con)
+            except:
+                reconnect = True
+
+            if reconnect:
+                try:
+                    con.reconnect()
+                except:
+                    pass
 
         # Render
         ticker.render(ticker_text)
