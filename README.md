@@ -13,6 +13,10 @@ First of all, launch spicetools with API server enabled. Then, launch with:
 
     py ticker.py server_ip port password
 
-e.g.,
+e.g., for running locally -
+
+    py ticker.py localhost 50000 "MyPass123"
+
+or, over the network by IP -
 
     py ticker.py "192.168.1.200" 50000 "MyPass123"
