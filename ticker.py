@@ -5,7 +5,7 @@ import argparse
 import time
 import pygame
 
-DEBUG = True
+DEBUG = False
 
 black = (0, 0, 0)
 gray = (12, 12, 12)
