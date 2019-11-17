@@ -5,6 +5,8 @@ import argparse
 import time
 import pygame
 
+DEBUG = True
+
 black = (0, 0, 0)
 gray = (12, 12, 12)
 red = (255, 0, 0)
@@ -20,17 +22,27 @@ all_off_text = "!!!!!!!!!"
 # '~' is all-on character in DSEG14 font
 all_on_text = "~~~~~~~~~"
 
-def convert_ticker_text(original_text):
-    text = original_text
-
-    '''print(text)
+def print_text_in_hex(text):
+    print(text)
     for c in text:
         print(ord(c), end=" ")
 
-    print("")'''
+    print("")
 
-    text = text.replace("m", ".")
+def convert_ticker_text(original_text):
+    text = original_text
+
+    if DEBUG:
+        print_text_in_hex(original_text)
+
+    # HT (horizontal tab) is sent after !
+    text = text.replace(chr(9), " ")
+    text = text.replace("!", "./")
+
+    # lower case m = period
+    text = text.replace("m", "." + all_off_char)
     text = text.replace("q", "'")
+    text = text.replace("u", ",")
     
     # Make S look more like IIDX
     text = text.replace("S", "5")
@@ -38,13 +50,7 @@ def convert_ticker_text(original_text):
     text = text.replace("[", "(")
     text = text.replace("]", ")")
     text = text.replace("~", "-")
-    
-    # give whitespace after period
-    text = text.replace(".", "." + all_off_char)
 
-    # HT (horizontal tab) is sent after !
-    text = text.replace(chr(9), " ")
-    text = text.replace("!", "./")
 
     # Lastly, blank space must be replaced by all-off character to keep
     # monospace
