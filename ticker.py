@@ -8,6 +8,9 @@ import os
 
 DEBUG = False
 
+default_width = 520
+default_aspect_ratio = (52 / 10)
+
 # colors
 
 black = (0, 0, 0)
@@ -56,6 +59,22 @@ def convert_ticker_text(original_text):
     # monospace
     text = text.replace(" ", all_off_char)
     return text
+
+def get_width_and_height(arg_width, arg_height):
+    if (arg_width is not None) and (arg_height is not None):
+        width = arg_width
+        height = arg_height
+    elif (arg_width is not None) and (arg_height is None):
+        width = arg_width
+        height = int(arg_width / default_aspect_ratio)
+    elif (arg_width is None) and (arg_height is not None):
+        width = int(arg_height * default_aspect_ratio)
+        height = arg_height
+    else:
+        width = default_width
+        height = int(default_width / default_aspect_ratio)
+
+    return (width, height)
 
 def get_ticker(con):
     text = spiceapi.iidx_ticker_get(con)
@@ -108,8 +127,8 @@ def main():
     parser.add_argument("host", type=str)
     parser.add_argument("port", type=int)
     parser.add_argument("password", type=str)
-    parser.add_argument("--width", type=int, default=520)
-    parser.add_argument("--height", type=int, default=100)
+    parser.add_argument("--width", type=int)
+    parser.add_argument("--height", type=int)
     parser.add_argument("--borderless", action="store_true")
     parser.add_argument("--x", type=int)
     parser.add_argument("--y", type=int)
@@ -121,15 +140,20 @@ def main():
     else:
         os.environ['SDL_VIDEO_CENTERED'] = '1'
 
+    # init framework
     pygame.init()
     clock = pygame.time.Clock()
 
-    # initialize the screen
+    # window properties
     flags = pygame.RESIZABLE
     if args.borderless:
         flags |= pygame.NOFRAME
 
-    surface = __get_display_surface((args.width, args.height), flags)
+    # window sizing
+    width, height = get_width_and_height(args.width, args.height)
+
+    # set up surface to draw on
+    surface = __get_display_surface((width, height), flags)
     pygame.display.set_caption("IIDXSEG")
     ticker = Ticker(surface)
 
