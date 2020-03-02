@@ -116,9 +116,8 @@ def main():
     args = parser.parse_args()
 
     # give hints to the window manager
-    if args.x is int and args.y is int:
-        os.environ['SDL_VIDEO_WINDOW_POS'] = \
-            str(args.x) + "," + str(args.y)
+    if (args.x is not None) and (args.y is not None):
+        os.environ['SDL_VIDEO_WINDOW_POS'] = str(args.x) + "," + str(args.y)
     else:
         os.environ['SDL_VIDEO_CENTERED'] = '1'
 
