@@ -20,3 +20,9 @@ e.g., for running locally -
 or, over the network by IP -
 
     py ticker.py "192.168.1.200" 50000 "MyPass123"
+
+## Updates
+
+### 2020-03-01
+
+Made the window resizable. Borderless option added. A bunch of command line options added for adjusting the window size at launch.
