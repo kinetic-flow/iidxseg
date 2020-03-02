@@ -4,15 +4,15 @@ import spiceapi
 import argparse
 import time
 import pygame
+from collections import namedtuple
 
 DEBUG = False
+
+# colors
 
 black = (0, 0, 0)
 gray = (12, 12, 12)
 red = (255, 0, 0)
-
-X = 520
-Y = 100
 
 all_off_char = "!"
 
@@ -62,12 +62,16 @@ def get_ticker(con):
     return convert_ticker_text(text[0])
 
 class Ticker:
-    def __init__(self, screen):
-        self.screen = screen
-        self.font = pygame.font.Font("DSEG14Classic-Italic.ttf", 64)
+    def __init__(self, surface):
+        self.surface = surface
+        self.__update_font()
+
+    def on_resize(self, new_surface):
+        self.surface = new_surface
+        self.__update_font()
 
     def render(self, ticker_text):
-        self.screen.fill(black) 
+        self.surface.fill(black) 
         
         self.__render_text(all_on_text, gray)
         self.__render_text(ticker_text, red)
@@ -75,8 +79,27 @@ class Ticker:
 
     def __render_text(self, text, color):
         text = self.font.render(text, True, color)
-        self.text_xy = (X // 2  - text.get_width() // 2, Y // 2  - text.get_height() // 2)
-        self.screen.blit(text, self.text_xy)
+
+        x, y = self.surface.get_size()
+        self.text_xy = (x // 2  - text.get_width() // 2, y // 2  - text.get_height() // 2)
+        self.surface.blit(text, self.text_xy)
+
+    def __update_font(self):
+        font_size = 8
+        while True:
+            x, y = self.surface.get_size()
+            font = self.__get_font(font_size + 2)
+            font_x, font_y = font.size(all_on_text)
+            if font_x <= x and font_y <= y:
+                font_size += 2
+            else:
+                break
+
+        self.font = self.__get_font(font_size)
+        pass
+
+    def __get_font(self, size):
+        return pygame.font.Font("DSEG14Classic-Italic.ttf", size)
 
 def main():
 
@@ -85,13 +108,17 @@ def main():
     parser.add_argument("host", type=str)
     parser.add_argument("port", type=int)
     parser.add_argument("password", type=str)
+    parser.add_argument("--width", type=int, default=520)
+    parser.add_argument("--height", type=int, default=100)
     args = parser.parse_args()
 
     pygame.init()
     clock = pygame.time.Clock()
-    screen = pygame.display.set_mode((X, Y))
+
+    # initialize the screen
+    surface = __get_display_surface((args.width, args.height))
     pygame.display.set_caption("IIDXSEG")
-    ticker = Ticker(screen)
+    ticker = Ticker(surface)
 
     quitting = False
     con = None
@@ -104,6 +131,11 @@ def main():
                 quitting = True
                 pygame.quit() 
                 quit()
+
+            if event.type == pygame.VIDEORESIZE:
+                surface = __get_display_surface(event.size)
+                ticker.on_resize(surface)
+                pass
 
         if con is None:
             try:
@@ -130,6 +162,13 @@ def main():
         ticker.render(ticker_text)
         clock.tick(8)
         pass
+
+def __get_display_surface(size):
+    flags = pygame.RESIZABLE
+    return pygame.display.set_mode(
+        size,
+        flags=flags
+        )
 
 if __name__ == "__main__":
     main()
