@@ -90,7 +90,7 @@ class Ticker:
             x, y = self.surface.get_size()
             font = self.__get_font(font_size + 2)
             font_x, font_y = font.size(all_on_text)
-            if font_x <= x and font_y <= y:
+            if font_x <= (x - 20) and font_y <= (y - 10):
                 font_size += 2
             else:
                 break
