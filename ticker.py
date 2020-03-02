@@ -4,7 +4,7 @@ import spiceapi
 import argparse
 import time
 import pygame
-from collections import namedtuple
+import os
 
 DEBUG = False
 
@@ -110,13 +110,27 @@ def main():
     parser.add_argument("password", type=str)
     parser.add_argument("--width", type=int, default=520)
     parser.add_argument("--height", type=int, default=100)
+    parser.add_argument("--borderless", action="store_true")
+    parser.add_argument("--x", type=int)
+    parser.add_argument("--y", type=int)
     args = parser.parse_args()
+
+    # give hints to the window manager
+    if args.x is int and args.y is int:
+        os.environ['SDL_VIDEO_WINDOW_POS'] = \
+            str(args.x) + "," + str(args.y)
+    else:
+        os.environ['SDL_VIDEO_CENTERED'] = '1'
 
     pygame.init()
     clock = pygame.time.Clock()
 
     # initialize the screen
-    surface = __get_display_surface((args.width, args.height))
+    flags = pygame.RESIZABLE
+    if args.borderless:
+        flags |= pygame.NOFRAME
+
+    surface = __get_display_surface((args.width, args.height), flags)
     pygame.display.set_caption("IIDXSEG")
     ticker = Ticker(surface)
 
@@ -134,7 +148,7 @@ def main():
                 quit()
 
             if event.type == pygame.VIDEORESIZE:
-                surface = __get_display_surface(event.size)
+                surface = __get_display_surface(event.size, flags)
                 ticker.on_resize(surface)
                 pass
 
@@ -164,8 +178,7 @@ def main():
         clock.tick(8)
         pass
 
-def __get_display_surface(size):
-    flags = pygame.RESIZABLE
+def __get_display_surface(size, flags):
     return pygame.display.set_mode(
         size,
         flags=flags
