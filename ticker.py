@@ -120,15 +120,16 @@ def main():
     pygame.display.set_caption("IIDXSEG")
     ticker = Ticker(surface)
 
-    quitting = False
     con = None
     reconnect = False
 
-    while not quitting:
+    while True:
         # Check for pygame events
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                quitting = True
+            if (event.type == pygame.QUIT or
+                (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE)):
+
+                print("exiting ...")
                 pygame.quit() 
                 quit()
 
