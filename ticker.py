@@ -54,7 +54,6 @@ def convert_ticker_text(original_text):
     text = text.replace("]", ")")
     text = text.replace("~", "-")
 
-
     # Lastly, blank space must be replaced by all-off character to keep
     # monospace
     text = text.replace(" ", all_off_char)
@@ -81,8 +80,9 @@ def get_ticker(con):
     return convert_ticker_text(text[0])
 
 class Ticker:
-    def __init__(self, surface):
+    def __init__(self, surface, offset_y=0):
         self.surface = surface
+        self.offset_y = offset_y
         self.__update_font()
 
     def on_resize(self, new_surface):
@@ -100,7 +100,9 @@ class Ticker:
         text = self.font.render(text, True, color)
 
         x, y = self.surface.get_size()
-        self.text_xy = (x // 2  - text.get_width() // 2, y // 2  - text.get_height() // 2)
+        self.text_xy = (x // 2  - text.get_width() // 2,
+                        y // 2  - text.get_height() // 2 + self.offset_y)
+
         self.surface.blit(text, self.text_xy)
 
     def __update_font(self):
@@ -132,13 +134,12 @@ def main():
     parser.add_argument("--borderless", action="store_true")
     parser.add_argument("--x", type=int)
     parser.add_argument("--y", type=int)
+    parser.add_argument("--offset", type=int, default=0)
     args = parser.parse_args()
 
     # give hints to the window manager
     if (args.x is not None) and (args.y is not None):
         os.environ['SDL_VIDEO_WINDOW_POS'] = str(args.x) + "," + str(args.y)
-    else:
-        os.environ['SDL_VIDEO_CENTERED'] = '1'
 
     # init framework
     pygame.init()
@@ -155,10 +156,11 @@ def main():
     # set up surface to draw on
     surface = __get_display_surface((width, height), flags)
     pygame.display.set_caption("IIDXSEG")
-    ticker = Ticker(surface)
+    ticker = Ticker(surface, offset_y=args.offset)
 
     con = None
     reconnect = False
+    failed_connection_attempt = 0
 
     while True:
         # Check for pygame events
@@ -175,12 +177,21 @@ def main():
                 ticker.on_resize(surface)
                 pass
 
-        if con is None:
+        if (con is None and
+            (time.time() - failed_connection_attempt) > 10):
+
             try:
-                con = spiceapi.Connection(host=args.host, port=args.port, password=args.password)
-                print("reconnecting ...")
+                print("connecting ...")
+                con = spiceapi.Connection(
+                          host=args.host,
+                          port=args.port,
+                          password=args.password)
+
             except:
                 con = None
+
+            if con is None:
+                failed_connection_attempt = time.time()
 
         ticker_text = all_on_text
         if con is not None:
@@ -195,6 +206,7 @@ def main():
                     con.reconnect()
                 except:
                     pass
+            
 
         # Render
         ticker.render(ticker_text)
