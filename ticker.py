@@ -17,6 +17,12 @@ black = (0, 0, 0)
 gray = (12, 12, 12)
 red = (255, 0, 0)
 
+# default colors
+
+color_text_on = red
+color_text_off = gray
+color_background = black
+
 all_off_char = "!"
 
 # '!' is all-off character in DSEG14 font
@@ -90,10 +96,10 @@ class Ticker:
         self.__update_font()
 
     def render(self, ticker_text):
-        self.surface.fill(black) 
+        self.surface.fill(color_background) 
         
-        self.__render_text(all_on_text, gray)
-        self.__render_text(ticker_text, red)
+        self.__render_text(all_on_text, color_text_off)
+        self.__render_text(ticker_text, color_text_on)
         pygame.display.flip()
 
     def __render_text(self, text, color):
