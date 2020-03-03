@@ -20,3 +20,13 @@ e.g., for running locally -
 or, over the network by IP -
 
     py ticker.py "192.168.1.200" 50000 "MyPass123"
+    
+Launch it borderless, exactly where you want it:
+
+    py ticker.py "192.168.1.200" 50000 "MyPass123" --width 1280 --height 720 --x 200 --y 100
+
+## Updates
+
+### 2020-03-01
+
+Made the window resizable. Borderless option added. A bunch of command line options added for adjusting the window size at launch.
