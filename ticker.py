@@ -132,9 +132,8 @@ class Ticker:
 
 class WallClock:
     LENGTH = 4
-    DEFAULT_TEXT = ALL_ON_CHAR + ALL_ON_CHAR + ":" + ALL_ON_CHAR + ALL_ON_CHAR
+    DEFAULT_TEXT = ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2
     def __init__(self, surface):
-        # self.show_colon = False
         self.surface = surface
         self.__update_font()
 
@@ -145,14 +144,18 @@ class WallClock:
     def render(self):
         self.__render_text(self.DEFAULT_TEXT, COLOR_TEXT_OFF)
         now = datetime.now()
-        ticker_text = now.strftime("%I:%M")
+        if (now.microsecond < (500000)) == 0:
+            separator = ":"
+        else:
+            separator = " "
+        ticker_text = now.strftime("%I" + separator + "%M")
         self.__render_text(ticker_text, COLOR_TEXT_ON)
 
     def __render_text(self, text, color):
         text = self.font.render(text, True, color)
         x, y = self.surface.get_size()
         text_xy = (x - text.get_width() - 12,
-                        y - text.get_height() - 12)
+                   y - text.get_height() - 12)
 
         self.surface.blit(text, text_xy)
 
