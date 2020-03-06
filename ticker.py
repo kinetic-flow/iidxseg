@@ -123,7 +123,12 @@ class Ticker:
         pass
 
     def __get_font(self, size):
-        return pygame.font.Font(DEFAULT_FONT, size)
+        try:
+            font = pygame.font.Font(DEFAULT_FONT, size)
+            return font
+        except:
+            print(f"ERROR: font {DEFAULT_FONT} not found! Exiting...")
+            exit()
 
 class WallClock:
     LENGTH = 4
