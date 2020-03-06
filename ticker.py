@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 import pygame
 import os
+import sys
 
 DEBUG = False
 
@@ -128,7 +129,7 @@ class Ticker:
             return font
         except:
             print(f"ERROR: font {DEFAULT_FONT} not found! Exiting...")
-            exit()
+            sys.exit(-1)
 
 class WallClock:
     LENGTH = 4
@@ -220,7 +221,7 @@ def main():
 
                 print("exiting ...")
                 pygame.quit() 
-                quit()
+                sys.exit(0)
 
             if event.type == pygame.VIDEORESIZE:
                 surface = __get_display_surface(event.size, flags)
@@ -245,7 +246,7 @@ def main():
             if con is None:
                 failed_connection_attempt = time.time()
 
-        ticker_text = ALL_ON_CHAR * Ticker.LENGTH
+        ticker_text = "CONNECT.!.!."
         if con is not None:
             try:
                 ticker_text = get_ticker(con)
