@@ -89,9 +89,10 @@ def get_ticker(con):
 
 class Ticker:
     LENGTH = 9
-    def __init__(self, surface, offset_y=0):
+    def __init__(self, surface, font_size=0, offset_y=0):
         self.surface = surface
         self.offset_y = offset_y
+        self.preferred_font_size = font_size
         self.__update_font()
 
     def on_resize(self, new_surface):
@@ -111,15 +112,18 @@ class Ticker:
         self.surface.blit(text, text_xy)
 
     def __update_font(self):
-        font_size = 8
-        while True:
-            x, y = self.surface.get_size()
-            font = self.__get_font(font_size + 2)
-            font_x, font_y = font.size(ALL_ON_CHAR * self.LENGTH)
-            if font_x <= (x - 20) and font_y <= (y - 10):
-                font_size += 2
-            else:
-                break
+        if self.preferred_font_size > 0:
+            font_size = self.preferred_font_size
+        else:
+            font_size = 8
+            while True:
+                x, y = self.surface.get_size()
+                font = self.__get_font(font_size + 2)
+                font_x, font_y = font.size(ALL_ON_CHAR * self.LENGTH)
+                if font_x <= (x - 20) and font_y <= (y - 10):
+                    font_size += 2
+                else:
+                    break
 
         self.font = self.__get_font(font_size)
         pass
@@ -212,15 +216,49 @@ def main():
     parser.add_argument("host", type=str)
     parser.add_argument("port", type=int)
     parser.add_argument("password", type=str)
-    parser.add_argument("--width", type=int)
-    parser.add_argument("--height", type=int)
-    parser.add_argument("--borderless", action="store_true")
-    parser.add_argument("--x", type=int)
-    parser.add_argument("--y", type=int)
-    parser.add_argument("--offset", type=int, default=0)
-    parser.add_argument("--clock", action="store_true")
-    parser.add_argument("--timer", action="store_true")
-    parser.add_argument("--time_font_size", type=int, default=24)
+    parser.add_argument(
+        "--width",
+        type=int,
+        help="Width of the window")
+    parser.add_argument(
+        "--height",
+        type=int,
+        help="Height of the window")
+    parser.add_argument(
+        "--borderless",
+        action="store_true",
+        help="Remove window border and title bar")
+    parser.add_argument(
+        "--x",
+        type=int,
+        help="Desired x-coordinate for the window position")
+    parser.add_argument(
+        "--y",
+        type=int,
+        help="Desired y-coordinate for the window position")
+    parser.add_argument(
+        "--font_size",
+        type=int,
+        default=0,
+        help="Preferred font size for the ticker. When omitted, the ticker will fill the window")
+    parser.add_argument(
+        "--offset",
+        type=int,
+        default=0,
+        help="Desired y-offset in pixels to shift the ticker up (negative) or down (positive)")
+    parser.add_argument(
+        "--clock",
+        action="store_true",
+        help="Show the wall clock")
+    parser.add_argument(
+        "--timer",
+        action="store_true",
+        help="Show the stop watch")
+    parser.add_argument(
+        "--time_font_size",
+        type=int,
+        default=24,
+        help="Desired font size for the wall clock and the stop watch")
     args = parser.parse_args()
 
     # give hints to the window manager
@@ -242,7 +280,7 @@ def main():
     # set up surface to draw on
     surface = __get_display_surface((width, height), flags)
     pygame.display.set_caption("IIDXSEG")
-    ticker = Ticker(surface, offset_y=args.offset)
+    ticker = Ticker(surface, font_size=args.font_size, offset_y=args.offset)
     if args.clock:
         wallclock = WallClock(surface, args.time_font_size)
     else:
