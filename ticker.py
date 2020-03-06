@@ -3,6 +3,7 @@
 import spiceapi
 import argparse
 from datetime import datetime
+from datetime import timedelta
 import time
 import pygame
 import os
@@ -132,7 +133,6 @@ class Ticker:
             sys.exit(-1)
 
 class WallClock:
-    LENGTH = 4
     DEFAULT_TEXT = ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2
     def __init__(self, surface):
         self.surface = surface
@@ -168,6 +168,43 @@ class WallClock:
     def __get_font(self, size):
         return pygame.font.Font(DEFAULT_FONT, size)
 
+class StopWatch:
+    DEFAULT_TEXT = ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2
+    def __init__(self, surface):
+        self.surface = surface
+        self.__update_font()
+        self.start_time = datetime.now()
+
+    def on_resize(self, new_surface):
+        self.surface = new_surface
+        self.__update_font()
+
+    def render(self):
+        self.__render_text(self.DEFAULT_TEXT, COLOR_TEXT_OFF)
+        time_diff = datetime.now() - self.start_time
+        # time_diff += timedelta(hours=9, minutes=59, seconds=50)
+        seconds = time_diff.seconds % 60
+        minutes = (time_diff.seconds // 60) % 60
+        hours = (time_diff.seconds // 60 // 60) % 10
+        ticker_text = f"{hours:01}:{minutes:02}:{seconds:02}"
+        self.__render_text(ticker_text, COLOR_TEXT_ON)
+
+    def __render_text(self, text, color):
+        text = self.font.render(text, True, color)
+        x, y = self.surface.get_size()
+        text_xy = (12,
+                   y - text.get_height() - 12)
+
+        self.surface.blit(text, text_xy)
+
+    def __update_font(self):
+        font_size = 24
+        self.font = self.__get_font(font_size)
+        pass
+
+    def __get_font(self, size):
+        return pygame.font.Font(DEFAULT_FONT, size)
+
 def main():
 
     # parse args
@@ -182,6 +219,7 @@ def main():
     parser.add_argument("--y", type=int)
     parser.add_argument("--offset", type=int, default=0)
     parser.add_argument("--clock", action="store_true")
+    parser.add_argument("--timer", action="store_true")
     args = parser.parse_args()
 
     # give hints to the window manager
@@ -209,6 +247,11 @@ def main():
     else:
         wallclock = None
 
+    if args.timer:
+        stopwatch = StopWatch(surface)
+    else:
+        stopwatch = None
+
     con = None
     reconnect = False
     failed_connection_attempt = 0
@@ -228,6 +271,8 @@ def main():
                 ticker.on_resize(surface)
                 if wallclock:
                     wallclock.on_resize(surface)
+                if stopwatch:
+                    stopwatch.on_resize(surface)
                 pass
 
         if (con is None and
@@ -266,6 +311,8 @@ def main():
         ticker.render(ticker_text)
         if wallclock:
             wallclock.render()
+        if stopwatch:
+            stopwatch.render()
         pygame.display.flip()
         clock.tick(8)
         pass
