@@ -302,10 +302,13 @@ def main():
                 (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE)):
 
                 print("exiting ...")
-                pygame.quit() 
+                pygame.quit()
                 sys.exit(0)
 
             if event.type == pygame.VIDEORESIZE:
+                # reset the preferred window position now that the user changed
+                # the size or the location
+                os.environ['SDL_VIDEO_WINDOW_POS'] = ""
                 surface = __get_display_surface(event.size, flags)
                 ticker.on_resize(surface)
                 if wallclock:
