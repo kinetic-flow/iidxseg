@@ -2,34 +2,34 @@
 
 import spiceapi
 import argparse
+from datetime import datetime
 import time
 import pygame
 import os
 
 DEBUG = False
 
-default_width = 520
-default_aspect_ratio = (52 / 10)
+DEFAULT_WIDTH = 520
+DEFAULT_ASPECT_RATIO = (52 / 10)
+DEFAULT_FONT = "DSEG14Classic-Italic.ttf"
 
 # colors
 
-black = (0, 0, 0)
-gray = (12, 12, 12)
-red = (255, 0, 0)
+BLACK = (0, 0, 0)
+GRAY = (20, 10, 10)
+RED = (255, 0, 0)
 
 # default colors
 
-color_text_on = red
-color_text_off = gray
-color_background = black
-
-all_off_char = "!"
+COLOR_TEXT_ON = RED
+COLOR_TEXT_OFF = GRAY
+COLOR_BACKGROUND = BLACK
 
 # '!' is all-off character in DSEG14 font
-all_off_text = "!!!!!!!!!"
+ALL_OFF_CHAR = "!"
 
 # '~' is all-on character in DSEG14 font
-all_on_text = "~~~~~~~~~"
+ALL_ON_CHAR = "~"
 
 def print_text_in_hex(text):
     print(text)
@@ -49,7 +49,7 @@ def convert_ticker_text(original_text):
     text = text.replace("!", "./")
 
     # lower case m = period
-    text = text.replace("m", "." + all_off_char)
+    text = text.replace("m", "." + ALL_OFF_CHAR)
     text = text.replace("q", "'")
     text = text.replace("u", ",")
     
@@ -62,7 +62,7 @@ def convert_ticker_text(original_text):
 
     # Lastly, blank space must be replaced by all-off character to keep
     # monospace
-    text = text.replace(" ", all_off_char)
+    text = text.replace(" ", ALL_OFF_CHAR)
     return text
 
 def get_width_and_height(arg_width, arg_height):
@@ -71,13 +71,13 @@ def get_width_and_height(arg_width, arg_height):
         height = arg_height
     elif (arg_width is not None) and (arg_height is None):
         width = arg_width
-        height = int(arg_width / default_aspect_ratio)
+        height = int(arg_width / DEFAULT_ASPECT_RATIO)
     elif (arg_width is None) and (arg_height is not None):
-        width = int(arg_height * default_aspect_ratio)
+        width = int(arg_height * DEFAULT_ASPECT_RATIO)
         height = arg_height
     else:
-        width = default_width
-        height = int(default_width / default_aspect_ratio)
+        width = DEFAULT_WIDTH
+        height = int(DEFAULT_WIDTH / DEFAULT_ASPECT_RATIO)
 
     return (width, height)
 
@@ -86,6 +86,7 @@ def get_ticker(con):
     return convert_ticker_text(text[0])
 
 class Ticker:
+    LENGTH = 9
     def __init__(self, surface, offset_y=0):
         self.surface = surface
         self.offset_y = offset_y
@@ -96,27 +97,23 @@ class Ticker:
         self.__update_font()
 
     def render(self, ticker_text):
-        self.surface.fill(color_background) 
-        
-        self.__render_text(all_on_text, color_text_off)
-        self.__render_text(ticker_text, color_text_on)
-        pygame.display.flip()
+        self.__render_text(ALL_ON_CHAR * self.LENGTH, COLOR_TEXT_OFF)
+        self.__render_text(ticker_text, COLOR_TEXT_ON)
 
     def __render_text(self, text, color):
         text = self.font.render(text, True, color)
-
         x, y = self.surface.get_size()
-        self.text_xy = (x // 2  - text.get_width() // 2,
-                        y // 2  - text.get_height() // 2 + self.offset_y)
+        text_xy = (x // 2  - text.get_width() // 2,
+                   y // 2  - text.get_height() // 2 + self.offset_y)
 
-        self.surface.blit(text, self.text_xy)
+        self.surface.blit(text, text_xy)
 
     def __update_font(self):
         font_size = 8
         while True:
             x, y = self.surface.get_size()
             font = self.__get_font(font_size + 2)
-            font_x, font_y = font.size(all_on_text)
+            font_x, font_y = font.size(ALL_ON_CHAR * self.LENGTH)
             if font_x <= (x - 20) and font_y <= (y - 10):
                 font_size += 2
             else:
@@ -126,7 +123,41 @@ class Ticker:
         pass
 
     def __get_font(self, size):
-        return pygame.font.Font("DSEG14Classic-Italic.ttf", size)
+        return pygame.font.Font(DEFAULT_FONT, size)
+
+class WallClock:
+    LENGTH = 4
+    DEFAULT_TEXT = ALL_ON_CHAR + ALL_ON_CHAR + ":" + ALL_ON_CHAR + ALL_ON_CHAR
+    def __init__(self, surface):
+        # self.show_colon = False
+        self.surface = surface
+        self.__update_font()
+
+    def on_resize(self, new_surface):
+        self.surface = new_surface
+        self.__update_font()
+
+    def render(self):
+        self.__render_text(self.DEFAULT_TEXT, COLOR_TEXT_OFF)
+        now = datetime.now()
+        ticker_text = now.strftime("%I:%M")
+        self.__render_text(ticker_text, COLOR_TEXT_ON)
+
+    def __render_text(self, text, color):
+        text = self.font.render(text, True, color)
+        x, y = self.surface.get_size()
+        text_xy = (x - text.get_width() - 12,
+                        y - text.get_height() - 12)
+
+        self.surface.blit(text, text_xy)
+
+    def __update_font(self):
+        font_size = 24
+        self.font = self.__get_font(font_size)
+        pass
+
+    def __get_font(self, size):
+        return pygame.font.Font(DEFAULT_FONT, size)
 
 def main():
 
@@ -141,6 +172,7 @@ def main():
     parser.add_argument("--x", type=int)
     parser.add_argument("--y", type=int)
     parser.add_argument("--offset", type=int, default=0)
+    parser.add_argument("--clock", action="store_true")
     args = parser.parse_args()
 
     # give hints to the window manager
@@ -163,6 +195,10 @@ def main():
     surface = __get_display_surface((width, height), flags)
     pygame.display.set_caption("IIDXSEG")
     ticker = Ticker(surface, offset_y=args.offset)
+    if args.clock:
+        wallclock = WallClock(surface)
+    else:
+        wallclock = None
 
     con = None
     reconnect = False
@@ -181,6 +217,8 @@ def main():
             if event.type == pygame.VIDEORESIZE:
                 surface = __get_display_surface(event.size, flags)
                 ticker.on_resize(surface)
+                if wallclock:
+                    wallclock.on_resize(surface)
                 pass
 
         if (con is None and
@@ -199,7 +237,7 @@ def main():
             if con is None:
                 failed_connection_attempt = time.time()
 
-        ticker_text = all_on_text
+        ticker_text = ALL_ON_CHAR * Ticker.LENGTH
         if con is not None:
             try:
                 ticker_text = get_ticker(con)
@@ -215,7 +253,11 @@ def main():
             
 
         # Render
+        surface.fill(COLOR_BACKGROUND) 
         ticker.render(ticker_text)
+        if wallclock:
+            wallclock.render()
+        pygame.display.flip()
         clock.tick(8)
         pass
 
