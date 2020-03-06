@@ -134,8 +134,9 @@ class Ticker:
 
 class WallClock:
     DEFAULT_TEXT = ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2
-    def __init__(self, surface):
+    def __init__(self, surface, font_size):
         self.surface = surface
+        self.font_size = font_size
         self.__update_font()
 
     def on_resize(self, new_surface):
@@ -161,17 +162,17 @@ class WallClock:
         self.surface.blit(text, text_xy)
 
     def __update_font(self):
-        font_size = 24
-        self.font = self.__get_font(font_size)
+        self.font = self.__get_font(self.font_size)
         pass
 
     def __get_font(self, size):
         return pygame.font.Font(DEFAULT_FONT, size)
 
 class StopWatch:
-    DEFAULT_TEXT = ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2
-    def __init__(self, surface):
+    DEFAULT_TEXT = ALL_ON_CHAR + ":" + ALL_ON_CHAR * 2 + ":" + ALL_ON_CHAR * 2
+    def __init__(self, surface, font_size):
         self.surface = surface
+        self.font_size = font_size
         self.__update_font()
         self.start_time = datetime.now()
 
@@ -198,8 +199,7 @@ class StopWatch:
         self.surface.blit(text, text_xy)
 
     def __update_font(self):
-        font_size = 24
-        self.font = self.__get_font(font_size)
+        self.font = self.__get_font(self.font_size)
         pass
 
     def __get_font(self, size):
@@ -220,6 +220,7 @@ def main():
     parser.add_argument("--offset", type=int, default=0)
     parser.add_argument("--clock", action="store_true")
     parser.add_argument("--timer", action="store_true")
+    parser.add_argument("--time_font_size", type=int, default=24)
     args = parser.parse_args()
 
     # give hints to the window manager
@@ -243,12 +244,12 @@ def main():
     pygame.display.set_caption("IIDXSEG")
     ticker = Ticker(surface, offset_y=args.offset)
     if args.clock:
-        wallclock = WallClock(surface)
+        wallclock = WallClock(surface, args.time_font_size)
     else:
         wallclock = None
 
     if args.timer:
-        stopwatch = StopWatch(surface)
+        stopwatch = StopWatch(surface, args.time_font_size)
     else:
         stopwatch = None
 
