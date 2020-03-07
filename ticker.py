@@ -14,7 +14,12 @@ DEBUG = False
 
 DEFAULT_WIDTH = 520
 DEFAULT_ASPECT_RATIO = (52 / 10)
-DEFAULT_FONT = ".\\DSEG14Classic-Italic.ttf"
+
+if getattr(sys, 'frozen', False):
+    CurrentPath = sys._MEIPASS
+else:
+    CurrentPath = os.path.dirname(__file__)
+DEFAULT_FONT = os.path.join(CurrentPath, 'DSEG14Classic-Italic.ttf')
 
 CONNECTING_TEXT = "CONNECT.!.!."
 
