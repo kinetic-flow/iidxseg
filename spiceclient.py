@@ -1,14 +1,8 @@
 #!/usr/bin/env python3
 
 import spiceapi
-import argparse
-from datetime import datetime, timedelta
 import time
 import pygame
-import os
-import sys
-import multiprocessing
-from multiprocessing import Process, Queue
 from constants import *
 
 def spice_client(q, host, port, password):
@@ -85,3 +79,10 @@ def convert_ticker_text(original_text):
     # monospace
     text = text.replace(" ", ALL_OFF_CHAR)
     return text
+
+def print_text_in_hex(text):
+    print(text)
+    for c in text:
+        print(ord(c), end=" ")
+
+    print("")

@@ -13,13 +13,6 @@ import spiceclient
 import widgets
 import config
 
-def print_text_in_hex(text):
-    print(text)
-    for c in text:
-        print(ord(c), end=" ")
-
-    print("")
-
 def get_width_and_height(arg_width, arg_height):
     if (arg_width is not None) and (arg_height is not None):
         width = arg_width
