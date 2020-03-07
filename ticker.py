@@ -7,6 +7,7 @@ import time
 import pygame
 import os
 import sys
+import multiprocessing
 from multiprocessing import Process, Queue
 
 DEBUG = False
@@ -256,7 +257,6 @@ def spice_client(q, host, port, password):
         pass
 
 def main():
-
     # parse args
     parser = argparse.ArgumentParser(description="IIDXSEG")
     parser.add_argument("host", type=str)
@@ -400,4 +400,5 @@ def exit_app(process):
     sys.exit(0)
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()
