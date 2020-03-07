@@ -21,6 +21,10 @@ or, over the network by IP -
 
     py ticker.py "192.168.1.200" 50000 "MyPass123"
     
+Display a timer (only ticks up) and the current time:
+
+    py ticker.py "192.168.1.200" 50000 "MyPass123" --timer --clock
+    
 Launch it borderless, exactly where you want it:
 
     py ticker.py "192.168.1.200" 50000 "MyPass123" --width 1280 --height 720 --x 200 --y 100
@@ -30,3 +34,7 @@ Launch it borderless, exactly where you want it:
 ### 2020-03-01
 
 Made the window resizable. Borderless option added. A bunch of command line options added for adjusting the window size at launch.
+
+### 2020-03-06
+
+Add timer and wall clock. Spawn a separate process to handle the network connection (and not block the GUI thread)
