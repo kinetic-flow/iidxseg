@@ -2,18 +2,20 @@
 
 import spiceapi
 import argparse
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 import time
 import pygame
 import os
 import sys
+from multiprocessing import Process, Queue
 
 DEBUG = False
 
 DEFAULT_WIDTH = 520
 DEFAULT_ASPECT_RATIO = (52 / 10)
 DEFAULT_FONT = "DSEG14Classic-Italic.ttf"
+
+CONNECTING_TEXT = "CONNECT.!.!."
 
 # colors
 
@@ -209,6 +211,50 @@ class StopWatch:
     def __get_font(self, size):
         return pygame.font.Font(DEFAULT_FONT, size)
 
+def spice_client(q, host, port, password):
+    con = None
+    reconnect = False
+    failed_connection_attempt = 0
+    clock = pygame.time.Clock()
+    while True:
+        ticker_text = CONNECTING_TEXT
+        if (con is None and
+            (time.time() - failed_connection_attempt) > 10):
+
+            try:
+                print("connecting ...")
+                con = spiceapi.Connection(
+                          host=host,
+                          port=port,
+                          password=password)
+
+            except:
+                con = None
+
+            if con is None:
+                failed_connection_attempt = time.time()
+
+        if con is not None:
+            try:
+                ticker_text = get_ticker(con)
+            except:
+                reconnect = True
+
+            if reconnect:
+                try:
+                    reconnect = False
+                    con.reconnect()
+                except:
+                    pass
+
+        try:
+            q.put(ticker_text)
+        except:
+            pass
+
+        clock.tick(8)
+        pass
+
 def main():
 
     # parse args
@@ -291,10 +337,13 @@ def main():
     else:
         stopwatch = None
 
-    con = None
-    reconnect = False
-    failed_connection_attempt = 0
+    q = Queue(maxsize=2)
+    p = Process(
+        target=spice_client,
+        args=(q, args.host, args.port, args.password))
+    p.start()
 
+    last_ticker_text = CONNECTING_TEXT
     while True:
         # Check for pygame events
         for event in pygame.event.get():
@@ -302,8 +351,7 @@ def main():
                 (event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE)):
 
                 print("exiting ...")
-                pygame.quit()
-                sys.exit(0)
+                exit_app(p)
 
             if event.type == pygame.VIDEORESIZE:
                 # reset the preferred window position now that the user changed
@@ -317,36 +365,16 @@ def main():
                     stopwatch.on_resize(surface)
                 pass
 
-        if (con is None and
-            (time.time() - failed_connection_attempt) > 10):
+        # grab ticker text from queue
+        try:
+            ticker_text = q.get(block=False)
+        except:
+            ticker_text = None
 
-            try:
-                print("connecting ...")
-                con = spiceapi.Connection(
-                          host=args.host,
-                          port=args.port,
-                          password=args.password)
-
-            except:
-                con = None
-
-            if con is None:
-                failed_connection_attempt = time.time()
-
-        ticker_text = "CONNECT.!.!."
-        if con is not None:
-            try:
-                ticker_text = get_ticker(con)
-            except:
-                reconnect = True
-
-            if reconnect:
-                try:
-                    reconnect = False
-                    con.reconnect()
-                except:
-                    pass
-            
+        if ticker_text:
+            last_ticker_text = ticker_text
+        else:
+            ticker_text = last_ticker_text
 
         # Render
         surface.fill(COLOR_BACKGROUND) 
@@ -364,6 +392,12 @@ def __get_display_surface(size, flags):
         size,
         flags=flags
         )
+
+def exit_app(process):
+    pygame.quit()
+    if process:
+        process.terminate()
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
