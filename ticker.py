@@ -14,7 +14,7 @@ DEBUG = False
 
 DEFAULT_WIDTH = 520
 DEFAULT_ASPECT_RATIO = (52 / 10)
-DEFAULT_FONT = "DSEG14Classic-Italic.ttf"
+DEFAULT_FONT = ".\\DSEG14Classic-Italic.ttf"
 
 CONNECTING_TEXT = "CONNECT.!.!."
 
