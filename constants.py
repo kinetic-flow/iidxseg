@@ -19,7 +19,7 @@ CONNECTING_TEXT = "CONNECT.!.!."
 # colors
 
 BLACK = (0, 0, 0)
-GRAY = (20, 10, 10)
+GRAY = (20, 20, 20)
 RED = (255, 0, 0)
 
 # default colors

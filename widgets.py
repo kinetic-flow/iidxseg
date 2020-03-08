@@ -16,9 +16,9 @@ class Ticker:
         self.surface = new_surface
         self.__update_font()
 
-    def render(self, ticker_text):
+    def render(self, ticker_text, color):
         self.__render_text(ALL_ON_CHAR * self.LENGTH, COLOR_TEXT_OFF)
-        self.__render_text(ticker_text, COLOR_TEXT_ON)
+        self.__render_text(ticker_text, color)
 
     def __render_text(self, text, color):
         text = self.font.render(text, True, color)
@@ -64,7 +64,7 @@ class WallClock:
         self.surface = new_surface
         self.__update_font()
 
-    def render(self):
+    def render(self, color):
         self.__render_text(self.DEFAULT_TEXT, COLOR_TEXT_OFF)
         now = datetime.now()
         if (now.microsecond < (500000)) == 0:
@@ -72,7 +72,7 @@ class WallClock:
         else:
             separator = " "
         ticker_text = now.strftime("%I" + separator + "%M")
-        self.__render_text(ticker_text, COLOR_TEXT_ON)
+        self.__render_text(ticker_text, color)
 
     def __render_text(self, text, color):
         text = self.font.render(text, True, color)
@@ -101,7 +101,7 @@ class StopWatch:
         self.surface = new_surface
         self.__update_font()
 
-    def render(self):
+    def render(self, color):
         self.__render_text(self.DEFAULT_TEXT, COLOR_TEXT_OFF)
         time_diff = datetime.now() - self.start_time
         # time_diff += timedelta(hours=9, minutes=59, seconds=50)
@@ -109,7 +109,7 @@ class StopWatch:
         minutes = (time_diff.seconds // 60) % 60
         hours = (time_diff.seconds // 60 // 60) % 10
         ticker_text = f"{hours:01}:{minutes:02}:{seconds:02}"
-        self.__render_text(ticker_text, COLOR_TEXT_ON)
+        self.__render_text(ticker_text, color)
 
     def __render_text(self, text, color):
         text = self.font.render(text, True, color)

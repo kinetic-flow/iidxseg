@@ -50,5 +50,10 @@ def parse_args():
         type=int,
         default=24,
         help="Desired font size for the wall clock and the stop watch")
+    parser.add_argument(
+        "--color",
+        type=str,
+        default="0xff0000",
+        help="Desired color (e.g., 0x00ff00 for green), or 'rgb'")
     args = parser.parse_args()
     return args
