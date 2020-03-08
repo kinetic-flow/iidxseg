@@ -27,7 +27,12 @@ or, over the network by IP -
 Display a timer (only ticks up) and the current time:
 
     iidxseg.exe "192.168.1.200" 50000 "MyPass123" --timer --clock
-    
+
+Use a different color! Or cycle through RGB like a true gamer!
+
+    iidxseg.exe "192.168.1.200" 50000 "MyPass123" --color 0xff12ee
+    iidxseg.exe "192.168.1.200" 50000 "MyPass123" --color rgb
+
 Launch it borderless, exactly where you want it:
 
     iidxseg.exe "192.168.1.200" 50000 "MyPass123" --width 1280 --height 720 --x 200 --y 100
