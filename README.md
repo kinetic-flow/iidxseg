@@ -48,3 +48,7 @@ Launch it borderless, exactly where you want it:
 * Standalone binary release for Windows.
 
 * Add timer and wall clock. Spawn a separate process to handle the network connection (and not block the GUI thread)
+
+### 2020-03-07
+
+* Add color option
