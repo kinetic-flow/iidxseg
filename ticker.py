@@ -29,6 +29,19 @@ def get_width_and_height(arg_width, arg_height):
 
     return (width, height)
 
+def generate_color(option):
+    if option == "rgb":
+        rgb = pygame.Color(*RED)
+        while True:
+            hue = rgb.hsva[0]
+            hue = (hue + 2) % 360
+            rgb.hsva = (hue, *rgb.hsva[1:])
+            yield rgb
+    else:
+        fixed_color = pygame.Color(option)
+        while True:
+            yield fixed_color
+
 def main():
     args = config.parse_args()
 
@@ -62,13 +75,16 @@ def main():
     else:
         stopwatch = None
 
+    # multiprocessing
     q = Queue(maxsize=2)
     p = Process(
         target=spiceclient.spice_client,
         args=(q, args.host, args.port, args.password))
     p.start()
 
+    # ticker stuff
     last_ticker_text = CONNECTING_TEXT
+    color_generator = generate_color(args.color)
     while True:
         # Check for pygame events
         for event in pygame.event.get():
@@ -103,11 +119,12 @@ def main():
 
         # Render
         surface.fill(COLOR_BACKGROUND) 
-        ticker.render(ticker_text)
+        color = next(color_generator)
+        ticker.render(ticker_text, color)
         if wallclock:
-            wallclock.render()
+            wallclock.render(color)
         if stopwatch:
-            stopwatch.render()
+            stopwatch.render(color)
         pygame.display.flip()
         clock.tick(8)
         pass
