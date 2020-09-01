@@ -8,7 +8,7 @@ IIDX segment display software emulator
 Check the [releases page](https://github.com/minsang-github/iidxseg/releases).
 
 ## Build Dependencies
-Tested on Python 3.7.3. Requires [DSEG14Classic-Italic font](https://www.keshikan.net/fonts-e.html), pygame, and SpiceAPI.
+Tested on Python 3.7.3. Requires [DSEG14Classic-Italic font](https://github.com/keshikan/DSEG), pygame, and SpiceAPI.
 
 ## Instructions
 
