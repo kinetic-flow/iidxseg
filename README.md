@@ -12,7 +12,7 @@ Tested on Python 3.7.3. Requires [DSEG14Classic-Italic font](https://github.com/
 
 ## Instructions
 
-First of all, launch spicetools with API server enabled. Then, launch with:
+First of all, ensure SpiceAPI server is running. Then, launch with:
 
     iidxseg.exe server_ip port password
 
