@@ -1,6 +1,6 @@
 # iidxseg
 
-![screenshot](https://raw.githubusercontent.com/minsangkim89/iidxseg/7c361018475446fb86a9bcef9d9ac32894fb58f1/res/readme/2019-09-15.gif?token=ANCXP72DCKTMFDSJ6ZKIXMC5P27JI)
+![screenshot](https://raw.githubusercontent.com/kinetic-flow/iidxseg/refs/heads/master/res/readme/2019-09-15.gif)
 
 IIDX segment display software emulator
 
@@ -52,3 +52,4 @@ Launch it borderless, exactly where you want it:
 ### 2020-03-07
 
 * Add color option
+
